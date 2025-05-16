@@ -23,17 +23,16 @@ const ADMIN_PASSWORD = 'Admin@123';
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/swf';
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(MONGODB_URI, {})
 .then(() => console.log('MongoDB connected'))
 .catch((err) => console.error('MongoDB connection error:', err));
 
 // Enable CORS for all routes
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
+  origin: ['http://localhost:5174', 'http://localhost:5173'], // Allow both ports
+  credentials: true, // If you're using cookies/sessions
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware
@@ -63,15 +62,7 @@ app.post('/api/contact', contactController.submitForm);
 app.post('/api/subscribe', subscribeController.submitForm);
 app.post('/api/admin/register', adminController.registerAdmin);
 app.post('/api/admin/login', async (req, res) => {
-    const { email, password } = req.body;
-
-    // Dummy admin credentials check
-    if (email === 'admin@swf.com' && password === 'Admin@123') {
-        const token = jwt.sign({ adminId: email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return res.json({ token });
-    }
-
-    return res.status(401).json({ message: 'Invalid credentials' });
+  // ...existing code...
 });
 
 // Protected admin routes
