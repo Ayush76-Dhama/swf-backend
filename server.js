@@ -22,11 +22,12 @@ const ADMIN_EMAIL = 'admin@swf.com';
 const ADMIN_PASSWORD = 'Admin@123';
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/swf';
-mongoose.connect(MONGODB_URI, {})
-.then(() => console.log('MongoDB connected'))
-.catch((err) => console.error('MongoDB connection error:', err));
-
+mongoose.connect('mongodb://localhost:27017/swf', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }).then(() => console.log('MongoDB connected'))
+    .catch(err => console.error(err));
+  
 // Enable CORS for all routes
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'],
