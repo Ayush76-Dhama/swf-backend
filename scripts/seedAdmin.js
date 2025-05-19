@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Admin = require('../models/admin');
 require('dotenv').config();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const seedAdmin = async () => {
   try {
@@ -23,18 +23,17 @@ const seedAdmin = async () => {
     if (existingAdmin) {
       console.log('Admin user already exists, updating...');
       existingAdmin.password = await bcrypt.hash('Admin@123', 10);
-      existingAdmin.name = 'Admin User';
       existingAdmin.username = 'admin'; 
       await existingAdmin.save();
       console.log('Admin user updated successfully');
     } else {
       console.log('Creating new admin user...');
-      // Create admin user
+      // Create admin user with hashed password
+      const hashedPassword = await bcrypt.hash('Admin@123', 10);
       const adminUser = new Admin({
         username: 'admin',
-        name: 'Admin User',
         email: 'admin@swf.com',
-        password: 'Admin@123',
+        password: hashedPassword,
         role: 'admin'
       });
 

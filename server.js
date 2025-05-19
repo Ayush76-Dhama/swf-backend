@@ -29,10 +29,10 @@ mongoose.connect(MONGODB_URI, {})
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: ['http://localhost:5174', 'http://localhost:5173'], // Allow both ports
-  credentials: true, // If you're using cookies/sessions
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'],
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 
 // Middleware
@@ -56,17 +56,15 @@ const authMiddleware = async (req, res, next) => {
     }
 };
 
-// API Routes
+// Public API Routes
 app.post('/api/join-us', joinUsController.submitForm);
 app.post('/api/contact', contactController.submitForm);
 app.post('/api/subscribe', subscribeController.submitForm);
 app.post('/api/admin/register', adminController.registerAdmin);
-app.post('/api/admin/login', async (req, res) => {
-  // ...existing code...
-});
+app.post('/api/admin/login', adminController.loginAdmin);
 
 // Protected admin routes
-app.use('/api/admin/:path', authMiddleware);
+app.use('/api/admin/protected', authMiddleware);
 
 // Error handling
 app.use(middleware.notFound);
