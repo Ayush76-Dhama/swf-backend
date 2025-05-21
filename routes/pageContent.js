@@ -4,10 +4,17 @@ const PageContent = require('../models/PageContent');
 const auth = require('../middleware/auth');
 
 // Get content for a specific page
-router.get('/:pageId', async (req, res) => {
+router.get('/:pageId', auth, async (req, res) => {
   try {
     const pageContent = await PageContent.findOne({ pageId: req.params.pageId });
     if (!pageContent) {
+      // Create initial content if it doesn't exist
+      const newPageContent = new PageContent({
+        pageId: req.params.pageId,
+        content: '',
+        updatedBy: req.admin._id
+      });
+      await newPageContent.save();
       return res.json({ content: '' });
     }
     res.json({ content: pageContent.content });

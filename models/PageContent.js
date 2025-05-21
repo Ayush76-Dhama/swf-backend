@@ -23,25 +23,4 @@ const pageContentSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('PageContent', pageContentSchema);
-
-mongoose.connect('mongodb://localhost:27017/yourDatabaseName', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log('MongoDB connected');
-
-  // Example of creating a new PageContent
-  const PageContent = require('./models/PageContent');
-  const newPageContent = new PageContent({
-    pageId: 'home',
-    content: 'Welcome to the home page!',
-    updatedBy: 'yourAdminObjectIdHere' // Replace with a valid ObjectId
-  });
-
-  return newPageContent.save();
-})
-.then(() => console.log('Page content saved successfully'))
-.catch(err => console.error('Error:', err))
-.finally(() => mongoose.connection.close()); 
+module.exports = mongoose.model('PageContent', pageContentSchema); 

@@ -1,32 +1,43 @@
-const jwt = require('jsonwebtoken');
 const Admin = require('../models/admin');
+const jwt = require('jsonwebtoken');
 
-const adminAuth = async (req, res, next) => {
-    try {
-        // Get token from header
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-        
-        if (!token) {
-            return res.status(401).json({ message: 'No authentication token, access denied' });
-        }
+exports.registerAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const existingAdmin = await Admin.findOne({ email: email.toLowerCase() });
+    if (existingAdmin) return res.status(400).json({ message: 'Admin already exists' });
 
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // Find admin by id
-        const admin = await Admin.findById(decoded.adminId).select('-password');
-        
-        if (!admin) {
-            return res.status(401).json({ message: 'Token is not valid' });
-        }
+    const admin = new Admin({
+      email: email.toLowerCase(),
+      password
+    });
 
-        // Add admin to request object
-        req.admin = admin;
-        next();
-    } catch (error) {
-        console.error('Auth middleware error:', error);
-        res.status(401).json({ message: 'Token is not valid' });
-    }
+    await admin.save();
+    res.status(201).json({ message: 'Admin registered successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error registering admin' });
+  }
 };
 
-module.exports = adminAuth;
+exports.loginAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ email: email.toLowerCase() });
+
+    if (!admin || !(await admin.comparePassword(password))) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const token = jwt.sign({ adminId: admin._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).json({
+      token,
+      admin: {
+        id: admin._id,
+        email: admin.email
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
